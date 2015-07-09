@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-"""Distribution Utilities setup program for NDG Security Package
-
-NERC Data Grid Project
+"""Distribution Utilities for crypto-cookie package
 """
-__author__ = "P J Kershaw"
-__date__ = "24/04/06"
-__copyright__ = "(C) 2009 Science and Technology Facilities Council"
+__author__ = "@philipkershaw"
+__date__ = "09/07/15"
+__copyright__ = "(C) 2015 Science and Technology Facilities Council"
 __license__ = "BSD - see LICENSE file in top-level directory"
 __contact__ = "Philip.Kershaw@stfc.ac.uk"
 __revision__ = '$Id$'
+
 
 # Bootstrap setuptools if necessary.
 try:
@@ -19,20 +18,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-import sys
 import os
-
-# Packages needed for NDG Security
-# Note commented out ones fail with PyPI - use explicit link instead
-_PKG_DEPENDENCIES = [
-    'ndg-httpsclient',
-    'ndg_saml',
-    'ndg_xacml'
-    ]
-
-# Python 2.5 includes ElementTree by default
-if sys.version_info[0:2] < (2, 5):
-    _PKG_DEPENDENCIES += ['ElementTree', 'cElementTree']
 
 THIS_DIR = os.path.dirname(__file__)
 try:
@@ -49,12 +35,12 @@ setup(
     author_email =           'Philip.Kershaw@stfc.ac.uk',
     maintainer =             'Philip Kershaw',
     maintainer_email =       'Philip.Kershaw@stfc.ac.uk',
-    url =                    'https://github.com/cedadev/crypto-cookie',
+    url =                    'https://github.com/philipkershaw/crypto-cookie',
     license =                'BSD - See LICENCE file for details',
-    install_requires =        [],
-    dependency_links =        ["http://dist.ceda.ac.uk/pip/"],
+    install_requires =        ["cryptography"],
+#     dependency_links =        ["http://dist.ceda.ac.uk/pip/"],
     packages =               find_packages(),
     entry_points =         None,
-    test_suite =           'ndg.security.common.test',
+    test_suite =           'crypto_cookie.test',
     zip_safe =             False
 )

@@ -1,8 +1,11 @@
-'''
-Created on 9 Jul 2015
-
-@author: philipkershaw
-'''
+"""Cookie implementation based on Paste's AuthTicket for crypto-cookie package
+"""
+__author__ = "@philipkershaw"
+__date__ = "09/07/15"
+__copyright__ = "(C) 2015 Science and Technology Facilities Council"
+__license__ = "BSD - see LICENSE file in top-level directory"
+__contact__ = "Philip.Kershaw@stfc.ac.uk"
+__revision__ = '$Id$'
 import hashlib
 from paste.auth.auth_tkt import AuthTicket, BadTicket, parse_ticket
 
