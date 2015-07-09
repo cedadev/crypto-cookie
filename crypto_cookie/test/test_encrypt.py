@@ -10,7 +10,7 @@ import hashlib
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
-from ..encoding import Encoding
+from ..encoding import Encoder
 
 log = logging.getLogger(__name__)
 
@@ -53,11 +53,11 @@ class CookieEncryptTestCase(unittest.TestCase):
         
     def test04_encode_and_decode_msg(self):
         key = os.urandom(32)
-        encoded_msg = Encoding.encode_msg(b'a secret message', key)
+        encoded_msg = Encoder.encode_msg(b'a secret message', key)
         
         log.info('encoded message: %r', encoded_msg)
         
-        msg = Encoding.decode_msg(encoded_msg, key)
+        msg = Encoder.decode_msg(encoded_msg, key)
         
         log.info('decoded message: %r', msg)
         
