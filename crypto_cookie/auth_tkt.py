@@ -9,16 +9,18 @@ __revision__ = '$Id$'
 import hashlib
 from paste.auth.auth_tkt import AuthTicket, BadTicket, parse_ticket
 
-DEFAULT_DIGEST = hashlib.sha256
+from .encoding import Encoder
 
 
 class SecureCookie(AuthTicket):
     '''Use custom cookie implementation for AuthKit to enable compatibility
     with CEDA site services dj_security which uses Paste's AuthTicket
     '''
+#     DEFAULT_DIGEST = hashlib.sha256
+    DEFAULT_DIGEST = hashlib.md5
     
     @classmethod
-    def parse_ticket(cls, secret, ticket, ip, session, decrypt=True):
+    def parse_ticket(cls, secret, ticket, ip, session):
         '''Parse cookie and check its signature.
         
         :var secret: shared secret used between multiple trusted peers to 
@@ -37,14 +39,18 @@ class SecureCookie(AuthTicket):
                 raise BadTicket('No authkit.cookie.user_data key exists in the '
                                 'session')
 
-        if decrypt:
-            # Decrypt content
-            ticket_ = cls._decrypt(secret, ticket)
-        else:
-            ticket_ = ticket
-               
-        return parse_ticket(secret, ticket_, ip, digest_algo=DEFAULT_DIGEST)
+        ticket_ = Encoder.decode_msg(ticket, secret)
         
-    @classmethod
-    def _decrypt(cls, secret, encrypted_ticket):
-        """Decrypt cookie"""
+        return parse_ticket(secret, ticket_, ip, digest_algo=cls.DEFAULT_DIGEST)
+
+    def cookie_value(self):
+        """Extend cookie_value method to enable encryption, encoding and signing 
+        of encrypted cipher text
+        
+        :return: signed and encrypted cookie encoded as hexadecimal string
+        """
+        cookie_val = super(SecureCookie, self).cookie_value()
+        
+        encoded_cookie_val = Encoder.encode_msg(cookie_val, self.secret)
+        
+        return encoded_cookie_val

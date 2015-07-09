@@ -18,7 +18,7 @@ class Encoder(object):
     
     @classmethod
     def encode_msg(cls, msg, key):
-        cipher_text, iv = cls._encrypt(msg, key)
+        cipher_text, iv = Encryption.encrypt(msg, key)
         
         encoded_cipher_text = cipher_text.encode('hex')
         

@@ -18,6 +18,8 @@ class Encryption(object):
     MODE = modes.CBC
     ALGORITHM = algorithms.AES
     INITIALISATION_VECTOR_LEN = 16
+    PADDING_CHAR = ' '
+    MSG_SIZE_FACTOR = 8
     
     @classmethod
     def encrypt(cls, msg, key):
@@ -27,7 +29,12 @@ class Encryption(object):
         encryption_cipher = Cipher(cls.ALGORITHM(key), cls.MODE(iv), 
                                    backend=backend)
         encryptor = encryption_cipher.encryptor()
-        cipher_text = encryptor.update(msg) + encryptor.finalize()
+                
+        # Ensure length is an even multiple of 8
+        n_padding_chars = len(msg) % cls.MSG_SIZE_FACTOR
+        padded_msg = msg + cls.PADDING_CHAR * n_padding_chars
+
+        cipher_text = encryptor.update(padded_msg) + encryptor.finalize()
 
         return cipher_text, iv
 
@@ -38,6 +45,9 @@ class Encryption(object):
         decryption_cipher = Cipher(algorithms.AES(key), cls.MODE(iv), 
                                    backend=backend)
         decryptor = decryption_cipher.decryptor()
-        decrypted_msg = decryptor.update(cipher_text) + decryptor.finalize()
+        padded_decrypted_msg = decryptor.update(cipher_text) + \
+                                                        decryptor.finalize()
+        decrypted_msg = padded_decrypted_msg.rstrip(cls.PADDING_CHAR)
+        
         
         return decrypted_msg

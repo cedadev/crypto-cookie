@@ -10,12 +10,13 @@ import hashlib
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
-from ..encoding import Encoder
+from crypto_cookie.encoding import Encoder
+from crypto_cookie.auth_tkt import SecureCookie
 
 log = logging.getLogger(__name__)
 
 
-class CookieEncryptTestCase(unittest.TestCase):
+class EncryptionAndSignatureTestCase(unittest.TestCase):
                 
     def test01_encrypt_and_decrypt(self):
         backend = default_backend()
@@ -50,8 +51,10 @@ class CookieEncryptTestCase(unittest.TestCase):
         signature = hmac.new(key, b"a secret message", hashlib.sha256)
         digest = signature.hexdigest()
         log.info("Digest is %r", digest)
-        
-    def test04_encode_and_decode_msg(self):
+
+
+class EncoderTestCase(unittest.TestCase):        
+    def test01_encode_and_decode_msg(self):
         key = os.urandom(32)
         encoded_msg = Encoder.encode_msg(b'a secret message', key)
         
@@ -62,6 +65,31 @@ class CookieEncryptTestCase(unittest.TestCase):
         log.info('decoded message: %r', msg)
         
 
+class SecureCookieTestCase(unittest.TestCase):
+    def test01_create_cookie(self):
+        secret = os.urandom(32)
+        
+        cookie = SecureCookie(secret, 'pjk', '127.0.0.1')
+        cookie_val = cookie.cookie_value()
+        
+        log.info('Cookie value: %r', cookie_val)
+        
+    def test02_check_cookie(self):
+        secret = os.urandom(32)
+        
+        cookie = SecureCookie(secret, 'pjk', '127.0.0.1')
+        cookie_val = cookie.cookie_value()
+
+        session = {
+            'authkit.cookie.user': None,
+            'authkit.cookie.user_data': None
+        }
+        
+        ticket = SecureCookie.parse_ticket(secret, cookie_val, '127.0.0.1', 
+                                           session)
+        
+        log.info('ticket: %r', ticket)
+        
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     unittest.main()
