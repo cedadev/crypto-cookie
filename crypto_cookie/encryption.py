@@ -15,39 +15,53 @@ from cryptography.hazmat.backends import default_backend
 class Encryption(object):
     '''Class for handling encryption and decryption.  It uses symmetric key
     method'''
-    MODE = modes.CBC
-    ALGORITHM = algorithms.AES
-    INITIALISATION_VECTOR_LEN = 16
-    PADDING_CHAR = ' '
-    MSG_SIZE_FACTOR = 8
+    DEFAULT_MODE = modes.CBC
+    DEFAULT_ALGORITHM = algorithms.AES
+    DEFAULT_IV_LEN = 16
+    DEFAULT_PADDING_CHAR = ' '
+    DEFAULT_MSG_SIZE_FACTOR = 8
     
-    @classmethod
-    def encrypt(cls, msg, key):
+    def __init__(self, 
+                 algorithm=DEFAULT_ALGORITHM, 
+                 mode=DEFAULT_MODE,
+                 iv_len=DEFAULT_IV_LEN,
+                 padding_char=DEFAULT_PADDING_CHAR,
+                 msg_size_factor=DEFAULT_MSG_SIZE_FACTOR):
+        '''Set hash algorithm and encoding method'''
+        self.algorithm = algorithm
+        self.mode = mode
+        self.iv_len = iv_len
+        self.padding_char = padding_char
+        self.msg_size_factor = msg_size_factor
+        
+    def encrypt(self, msg, key):
         backend = default_backend()
-        iv = os.urandom(cls.INITIALISATION_VECTOR_LEN)
+        iv = os.urandom(self.iv_len)
 
-        encryption_cipher = Cipher(cls.ALGORITHM(key), cls.MODE(iv), 
+        encryption_cipher = Cipher(self.algorithm(key), self.mode(iv), 
                                    backend=backend)
         encryptor = encryption_cipher.encryptor()
                 
         # Ensure length is an even multiple of 8
-        n_padding_chars = len(msg) % cls.MSG_SIZE_FACTOR
-        padded_msg = msg + cls.PADDING_CHAR * n_padding_chars
-
+        if self.padding_char or self.msg_size_factor:
+            n_padding_chars = len(msg) % self.msg_size_factor
+            padded_msg = msg + self.padding_char * n_padding_chars
+        else:
+            padded_msg = msg
+            
         cipher_text = encryptor.update(padded_msg) + encryptor.finalize()
 
         return cipher_text, iv
 
-    @classmethod
-    def decrypt(cls, cipher_text, key, iv):
+    def decrypt(self, cipher_text, key, iv):
         backend = default_backend()
 
-        decryption_cipher = Cipher(algorithms.AES(key), cls.MODE(iv), 
+        decryption_cipher = Cipher(self.algorithm(key), self.mode(iv), 
                                    backend=backend)
         decryptor = decryption_cipher.decryptor()
         padded_decrypted_msg = decryptor.update(cipher_text) + \
                                                         decryptor.finalize()
-        decrypted_msg = padded_decrypted_msg.rstrip(cls.PADDING_CHAR)
+        decrypted_msg = padded_decrypted_msg.rstrip(self.padding_char)
         
         
         return decrypted_msg

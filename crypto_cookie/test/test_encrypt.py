@@ -16,7 +16,7 @@ from crypto_cookie.auth_tkt import SecureCookie
 log = logging.getLogger(__name__)
 
 
-class EncryptionAndSignatureTestCase(unittest.TestCase):
+class EncryptionTestCase(unittest.TestCase):
                 
     def test01_encrypt_and_decrypt(self):
         backend = default_backend()
@@ -44,23 +44,43 @@ class EncryptionAndSignatureTestCase(unittest.TestCase):
         decryptor = decryption_cipher.decryptor()
         log.info("test02_encrypt_and_decrypt: %r", 
                  decryptor.update(ct) + decryptor.finalize())
+        
+        
+class SignatureTestCase(unittest.TestCase):
 
-    def test03_hmac_digest(self):
+    def test01_hmac_digest(self):
         key = os.urandom(32)
         
         signature = hmac.new(key, b"a secret message", hashlib.sha256)
-        digest = signature.hexdigest()
+        hex_digest = signature.hexdigest()
+        
+        digest = signature.digest()
+        
+        self.assertEqual(digest.encode('hex'), hex_digest, 
+                         "Hex digests aren't equal")
+        
         log.info("Digest is %r", digest)
 
 
 class EncoderTestCase(unittest.TestCase):        
     def test01_encode_and_decode_msg(self):
         key = os.urandom(32)
-        encoded_msg = Encoder.encode_msg(b'a secret message', key)
+        encoded_msg = Encoder().encode_msg(b'a secret message', key)
         
         log.info('encoded message: %r', encoded_msg)
         
-        msg = Encoder.decode_msg(encoded_msg, key)
+        msg = Encoder().decode_msg(encoded_msg, key)
+        
+        log.info('decoded message: %r', msg)
+
+    def test02_encode_and_decode_msg_with_base64_encoding(self):
+        key = os.urandom(32)
+        encoded_msg = Encoder(encoding='base64').encode_msg(b'a secret message', 
+                                                            key)
+        
+        log.info('encoded message: %r', encoded_msg)
+        
+        msg = Encoder(encoding='base64').decode_msg(encoded_msg, key)
         
         log.info('decoded message: %r', msg)
         

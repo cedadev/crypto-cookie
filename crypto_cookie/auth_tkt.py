@@ -39,7 +39,7 @@ class SecureCookie(AuthTicket):
                 raise BadTicket('No authkit.cookie.user_data key exists in the '
                                 'session')
 
-        ticket_ = Encoder.decode_msg(ticket, secret)
+        ticket_ = Encoder().decode_msg(ticket, secret)
         
         return parse_ticket(secret, ticket_, ip, digest_algo=cls.DEFAULT_DIGEST)
 
@@ -51,6 +51,6 @@ class SecureCookie(AuthTicket):
         """
         cookie_val = super(SecureCookie, self).cookie_value()
         
-        encoded_cookie_val = Encoder.encode_msg(cookie_val, self.secret)
+        encoded_cookie_val = Encoder().encode_msg(cookie_val, self.secret)
         
         return encoded_cookie_val

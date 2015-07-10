@@ -16,20 +16,22 @@ class VerificationError(Exception):
     
 class Signature(object):
     """Class for handling HMAC signature of messages"""
-    HASH_ALGORITHM = hashlib.sha256
+    DEFAULT_HASH_ALGORITHM = hashlib.sha256
     
-    @classmethod
-    def sign(cls, msg, key):
+    def __init__(self, hash_algorithm=DEFAULT_HASH_ALGORITHM):
+        '''Set hash algorithm and encoding method'''
+        self.hash_algorithm = hash_algorithm
+        
+    def sign(self, msg, key):
         """Calculate digest for input message using the given key"""
-        signature = hmac.new(key, msg, cls.HASH_ALGORITHM)
-        digest = signature.hexdigest()
+        signature = hmac.new(key, msg, self.hash_algorithm)
+        digest = signature.digest()
 
         return digest
 
-    @classmethod
-    def verify_signature(cls, msg, digest, key):
+    def verify_signature(self, msg, digest, key):
         """Verify digest for input message"""
-        calculated_digest = cls.sign(msg, key)
+        calculated_digest = self.sign(msg, key)
         
         if calculated_digest != digest:
             raise VerificationError("Signature verification failed: "
