@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 from crypto_cookie.encoding import Encoder
+from crypto_cookie.encryption import Encryption
 from crypto_cookie.auth_tkt import SecureCookie
 
 log = logging.getLogger(__name__)
@@ -37,7 +38,9 @@ class EncryptionTestCase(unittest.TestCase):
         encryption_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), 
                                    backend=backend)
         encryptor = encryption_cipher.encryptor()
-        ct = encryptor.update(b"a secret message") + encryptor.finalize()
+        
+        msg = b"a secret message"
+        ct = encryptor.update(msg) + encryptor.finalize()
 
         decryption_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), 
                                    backend=backend)
@@ -45,7 +48,20 @@ class EncryptionTestCase(unittest.TestCase):
         log.info("test02_encrypt_and_decrypt: %r", 
                  decryptor.update(ct) + decryptor.finalize())
         
+    def test03_encryption_class(self):
+        msg = '4712cf0cf2f59ecd8b454e5ad1b213ea559fb98dpjkersha!'
+        key = os.urandom(32)
         
+        cipher_text, iv = Encryption().encrypt(msg, key)
+        
+        decr_msg = Encryption().decrypt(cipher_text, key, iv)
+    
+        self.assertEqual(msg, decr_msg, 'Ecnrypted and decrypted messages are '
+                         'not the same')
+            
+        log.info("test03_encryption_class: %r", decr_msg)
+    
+                 
 class SignatureTestCase(unittest.TestCase):
 
     def test01_hmac_digest(self):

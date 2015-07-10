@@ -19,22 +19,28 @@ class Encryption(object):
     DEFAULT_ALGORITHM = algorithms.AES
     DEFAULT_IV_LEN = 16
     DEFAULT_PADDING_CHAR = ' '
-    DEFAULT_MSG_SIZE_FACTOR = 8
+    DEFAULT_MSG_BLK_SIZE = 16
     
     def __init__(self, 
                  algorithm=DEFAULT_ALGORITHM, 
                  mode=DEFAULT_MODE,
                  iv_len=DEFAULT_IV_LEN,
                  padding_char=DEFAULT_PADDING_CHAR,
-                 msg_size_factor=DEFAULT_MSG_SIZE_FACTOR):
+                 msg_blk_size=DEFAULT_MSG_BLK_SIZE):
         '''Set hash algorithm and encoding method'''
         self.algorithm = algorithm
         self.mode = mode
         self.iv_len = iv_len
         self.padding_char = padding_char
-        self.msg_size_factor = msg_size_factor
+        self.msg_blk_size = msg_blk_size
         
     def encrypt(self, msg, key):
+        """Encrypt the input message with the given key.  Strings should be 
+        8-bit and are cast this way by default.  Unicode is not supported.
+        """
+        # Ensure 8-bit string
+        msg_ = str(msg)
+        
         backend = default_backend()
         iv = os.urandom(self.iv_len)
 
@@ -42,12 +48,14 @@ class Encryption(object):
                                    backend=backend)
         encryptor = encryption_cipher.encryptor()
                 
-        # Ensure length is an even multiple of 8
-        if self.padding_char or self.msg_size_factor:
-            n_padding_chars = len(msg) % self.msg_size_factor
-            padded_msg = msg + self.padding_char * n_padding_chars
+        # Ensure length is an even multiple of block size (default 16)
+        msg_len = len(msg) 
+        if msg_len % self.msg_blk_size:
+            factor = msg_len // self.msg_blk_size
+            n_padding_chars = self.msg_blk_size * (factor + 1) - len(msg)
+            padded_msg = msg_ + self.padding_char * n_padding_chars
         else:
-            padded_msg = msg
+            padded_msg = msg_
             
         cipher_text = encryptor.update(padded_msg) + encryptor.finalize()
 
