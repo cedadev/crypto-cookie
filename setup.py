@@ -28,7 +28,7 @@ setup(
     author_email =          'Philip.Kershaw@stfc.ac.uk',
     maintainer =            'Philip Kershaw',
     maintainer_email =      'Philip.Kershaw@stfc.ac.uk',
-    url =                   'https://github.com/philipkershaw/crypto-cookie',
+    url =                   'https://github.com/cedadev/crypto-cookie',
     license =               'BSD - See LICENCE file for details',
     install_requires =      ["cryptography"],
     extras_require =        {'SecureCookie': ['Paste']},
