@@ -124,6 +124,8 @@ class SecureCookieTestCase(unittest.TestCase):
         ticket = SecureCookie.parse_ticket(secret, cookie_val, '127.0.0.1', 
                                            session)
         
+        self.assertEqual('pjk', ticket[1], 'Error parsing user id')
+        
         log.info('ticket: %r', ticket)
         
 if __name__ == "__main__":
