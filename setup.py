@@ -15,7 +15,7 @@ THIS_DIR = os.path.dirname(__file__)
 DESCRIPTION = 'Package to encrypt and sign cookies'
 
 try:
-    LONG_DESCR = open(os.path.join(THIS_DIR, 'README.md')).read()
+    LONG_DESCR = open(os.path.join(THIS_DIR, 'README.rst')).read()
 except IOError:
     LONG_DESCR = ""
 
