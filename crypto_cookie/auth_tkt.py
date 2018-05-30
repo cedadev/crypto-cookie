@@ -11,7 +11,6 @@ import time as time_mod
 try:
     from http.cookies import SimpleCookie
 except ImportError:
-    # Python 2
     from Cookie import SimpleCookie
 
 from six import string_types
@@ -22,8 +21,8 @@ from .exceptions import BadTicket
 
 
 class SecureCookie(object):
-    '''This class represents an authentication token based. The code is based
-    on the AuthTicket from the Paste package.
+    '''This class represents an authentication token. The code is based
+    on AuthTicket from the Paste package.
     '''
     
     def __init__(self, secret, userid, ip, tokens=(), user_data='',
@@ -86,13 +85,11 @@ class SecureCookie(object):
         userid = unquote(userid)
         if '!' in data:
             tokens, user_data = data.split('!', 1)
+            tokens = tokens.split(',')
         else:
-            # @@: Is this the right order?
-            tokens = ''
+            tokens = []
             user_data = data
-    
-        tokens = tokens.split(',')
-    
+        
         return timestamp, userid, tokens, user_data
     
     def cookie_value(self):

@@ -130,7 +130,25 @@ class SecureCookieTestCase(unittest.TestCase):
         self.assertEqual('pjk', ticket[1], 'Error parsing user id')
         
         log.info('ticket: %r', ticket)
+    
+    def test03_cookie_with_data(self):
+        secret = os.urandom(32)
         
+        cookie = SecureCookie(secret, 'pjk', '127.0.0.1',
+                              tokens=('token1', 'token2'),
+                              user_data='user_data')
+        cookie_val = cookie.cookie_value()
+        
+        _, _, tokens, user_data = SecureCookie.parse_ticket(secret, cookie_val,
+                                                            None, None)
+        
+        self.assertEqual(['token1', 'token2'], tokens,
+                         'Failed to match tokens')
+        self.assertEqual('user_data', user_data,
+                         'Failed to match user_data')
+        
+        log.info('Cookie value: %r', cookie_val)
+    
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     unittest.main()
