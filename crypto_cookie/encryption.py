@@ -31,15 +31,17 @@ class Encryption(object):
         self.algorithm = algorithm
         self.mode = mode
         self.iv_len = iv_len
-        self.padding_char = padding_char
+        self.padding_char = padding_char.encode()
         self.msg_blk_size = msg_blk_size
         
     def encrypt(self, msg, key):
         """Encrypt the input message with the given key.  Strings should be 
         8-bit and are cast this way by default.  Unicode is not supported.
         """
-        # Ensure 8-bit string
-        msg_ = str(msg)
+        msg_ = msg
+        # Ensure bytes-like
+        if hasattr(msg_, 'encode'):
+            msg_ = msg_.encode()
         
         backend = default_backend()
         iv = os.urandom(self.iv_len)
@@ -72,4 +74,4 @@ class Encryption(object):
         decrypted_msg = padded_decrypted_msg.rstrip(self.padding_char)
         
         
-        return decrypted_msg
+        return decrypted_msg.decode()

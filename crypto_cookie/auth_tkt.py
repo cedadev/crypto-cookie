@@ -14,8 +14,8 @@ except ImportError:
     # Python 2
     from Cookie import SimpleCookie
 
-from urllib import quote as url_quote
-from urllib import unquote as url_unquote
+from six import string_types
+from six.moves.urllib.parse import quote, unquote
 
 from .encoding import Encoder
 from .exceptions import BadTicket
@@ -32,7 +32,7 @@ class SecureCookie(object):
         self.secret = secret
         self.userid = userid
         self.ip = ip
-        if not isinstance(tokens, basestring):
+        if not isinstance(tokens, string_types):
             tokens = ','.join(tokens)
         self.tokens = tokens
         self.user_data = user_data
@@ -62,10 +62,10 @@ class SecureCookie(object):
         :return: tuple of parsed cookie content
         '''
         if session is not None:
-            if not session.has_key('authkit.cookie.user'):
+            if 'authkit.cookie.user' not in session:
                 raise BadTicket('No authkit.cookie.user key exists in the '
                                 'session')
-            if not session.has_key('authkit.cookie.user_data'):
+            if 'authkit.cookie.user_data' not in session:
                 raise BadTicket('No authkit.cookie.user_data key exists in the '
                                 'session')
 
@@ -83,7 +83,7 @@ class SecureCookie(object):
         except ValueError:
             raise BadTicket('userid is not followed by !')
         
-        userid = url_unquote(userid)
+        userid = unquote(userid)
         if '!' in data:
             tokens, user_data = data.split('!', 1)
         else:
@@ -101,7 +101,7 @@ class SecureCookie(object):
         
         :return: signed and encrypted cookie encoded as hexadecimal string
         """
-        cookie_val = '%s%08x%s!' % (self.digest(), int(self.time), url_quote(self.userid))
+        cookie_val = '%s%08x%s!' % (self.digest(), int(self.time), quote(self.userid))
         if self.tokens:
             cookie_val += self.tokens + '!'
         cookie_val += self.user_data

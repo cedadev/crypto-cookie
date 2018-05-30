@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import unicode_literals
 
 import unittest
 import os
 import logging
 import hmac
 import hashlib
+import codecs
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
@@ -72,7 +74,8 @@ class SignatureTestCase(unittest.TestCase):
         
         digest = signature.digest()
         
-        self.assertEqual(digest.encode('hex'), hex_digest, 
+        encoded_digest = codecs.encode(digest, 'hex').decode()
+        self.assertEqual(encoded_digest, hex_digest,
                          "Hex digests aren't equal")
         
         log.info("Digest is %r", digest)
