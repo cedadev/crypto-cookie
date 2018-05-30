@@ -6,18 +6,43 @@ __copyright__ = "(C) 2015 Science and Technology Facilities Council"
 __license__ = "BSD - see LICENSE file in top-level directory"
 __contact__ = "Philip.Kershaw@stfc.ac.uk"
 __revision__ = '$Id$'
+
+import time as time_mod
+try:
+    from http.cookies import SimpleCookie
+except ImportError:
+    # Python 2
+    from Cookie import SimpleCookie
+
+from urllib import quote as url_quote
 from urllib import unquote as url_unquote
 
-from paste.auth.auth_tkt import AuthTicket, BadTicket
-
 from .encoding import Encoder
+from .exceptions import BadTicket
 
-    
-class SecureCookie(AuthTicket):
-    '''Use custom cookie implementation for AuthKit to enable compatibility
-    with CEDA site services dj_security which uses Paste's AuthTicket
+
+class SecureCookie(object):
+    '''This class represents an authentication token based. The code is based
+    on the AuthTicket from the Paste package.
     '''
-
+    
+    def __init__(self, secret, userid, ip, tokens=(), user_data='',
+                 time=None, cookie_name='auth_tkt', secure=False):
+        
+        self.secret = secret
+        self.userid = userid
+        self.ip = ip
+        if not isinstance(tokens, basestring):
+            tokens = ','.join(tokens)
+        self.tokens = tokens
+        self.user_data = user_data
+        if time is None:
+            self.time = time_mod.time()
+        else:
+            self.time = time
+        self.cookie_name = cookie_name
+        self.secure = secure
+    
     def digest(self):
         '''Don't calculate a digest because this is done as an independent step
         following encryption of the cookie
@@ -76,8 +101,19 @@ class SecureCookie(AuthTicket):
         
         :return: signed and encrypted cookie encoded as hexadecimal string
         """
-        cookie_val = super(SecureCookie, self).cookie_value()
+        cookie_val = '%s%08x%s!' % (self.digest(), int(self.time), url_quote(self.userid))
+        if self.tokens:
+            cookie_val += self.tokens + '!'
+        cookie_val += self.user_data
         
         encoded_cookie_val = Encoder().encode_msg(cookie_val, self.secret)
         
         return encoded_cookie_val
+    
+    def cookie(self):
+        c = SimpleCookie()
+        c[self.cookie_name] = self.cookie_value().encode('base64').strip().replace('\n', '')
+        c[self.cookie_name]['path'] = '/'
+        if self.secure:
+            c[self.cookie_name]['secure'] = 'true'
+        return c
