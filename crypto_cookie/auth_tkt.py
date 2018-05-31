@@ -21,8 +21,8 @@ from .exceptions import BadTicket
 
 
 class SecureCookie(object):
-    '''This class represents an authentication token. The code is based
-    on AuthTicket from the Paste package.
+    '''This class represents an authentication token. The structure is based
+    on AuthTicket from paste.auth.auth_tkt (https://pypi.org/project/Paste/).
     '''
     
     def __init__(self, secret, userid, ip, tokens=(), user_data='',
