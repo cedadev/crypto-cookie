@@ -8,6 +8,8 @@ able to help.
 
 Releases
 --------
+ * 0.3.1: PyPI release
+ * 0.3.0: drops dependency on Paste and adds support for Python 3
  * 0.2.0: altered to disable Paste AuthTicket's signature since the derived
    implementation signs the cookie separately following encryption
  * 0.1.0: initial release

@@ -31,10 +31,13 @@ setup(
     url =                   'https://github.com/cedadev/crypto-cookie',
     license =               'BSD - See LICENCE file for details',
     classifiers=(
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
     ),
     install_requires =      ['cryptography'],
     packages =              find_packages(),
