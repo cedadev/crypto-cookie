@@ -18,7 +18,7 @@ class Encryption(object):
     DEFAULT_MODE = modes.CBC
     DEFAULT_ALGORITHM = algorithms.AES
     DEFAULT_IV_LEN = 16
-    DEFAULT_PADDING_CHAR = ' '
+    DEFAULT_PADDING_CHAR = b' '
     DEFAULT_MSG_BLK_SIZE = 16
     
     def __init__(self, 
@@ -39,7 +39,10 @@ class Encryption(object):
         8-bit and are cast this way by default.  Unicode is not supported.
         """
         # Ensure 8-bit string
-        msg_ = str(msg)
+        if isinstance(msg, str):
+            msg_ = msg.encode('utf-8')
+        else:
+            msg_ = msg
         
         backend = default_backend()
         iv = os.urandom(self.iv_len)
@@ -49,10 +52,10 @@ class Encryption(object):
         encryptor = encryption_cipher.encryptor()
                 
         # Ensure length is an even multiple of block size (default 16)
-        msg_len = len(msg) 
+        msg_len = len(msg_) 
         if msg_len % self.msg_blk_size:
             factor = msg_len // self.msg_blk_size
-            n_padding_chars = self.msg_blk_size * (factor + 1) - len(msg)
+            n_padding_chars = self.msg_blk_size * (factor + 1) - msg_len
             padded_msg = msg_ + self.padding_char * n_padding_chars
         else:
             padded_msg = msg_
