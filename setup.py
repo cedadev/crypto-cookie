@@ -21,7 +21,7 @@ except IOError:
 
 setup(
     name =                  'crypto-cookie',
-    version =               '0.2.0',
+    version =               '0.3.0',
     description =           DESCRIPTION,
     long_description =      LONG_DESCR,
     author =                'Philip Kershaw',
@@ -31,7 +31,6 @@ setup(
     url =                   'https://github.com/cedadev/crypto-cookie',
     license =               'BSD - See LICENCE file for details',
     install_requires =      ["cryptography"],
-    extras_require =        {'SecureCookie': ['Paste']},
 #     dependency_links =        ["http://dist.ceda.ac.uk/pip/"],
     packages =              find_packages(),
     entry_points =          None,

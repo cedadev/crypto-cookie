@@ -1,7 +1,5 @@
 """Encoding module for crypto-cookie package
 """
-from pip._vendor.urllib3.util.request import ACCEPT_ENCODING
-from types import FunctionType
 __author__ = "@philipkershaw"
 __date__ = "09/07/15"
 __copyright__ = "(C) 2015 Science and Technology Facilities Council"

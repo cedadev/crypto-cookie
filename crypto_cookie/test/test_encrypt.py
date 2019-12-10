@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import unicode_literals
 
 import unittest
 import os
 import logging
 import hmac
 import hashlib
+import codecs
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
@@ -72,7 +74,8 @@ class SignatureTestCase(unittest.TestCase):
         
         digest = signature.digest()
         
-        self.assertEqual(digest.encode('hex'), hex_digest, 
+        encoded_digest = codecs.encode(digest, 'hex').decode()
+        self.assertEqual(encoded_digest, hex_digest,
                          "Hex digests aren't equal")
         
         log.info("Digest is %r", digest)
@@ -127,7 +130,25 @@ class SecureCookieTestCase(unittest.TestCase):
         self.assertEqual('pjk', ticket[1], 'Error parsing user id')
         
         log.info('ticket: %r', ticket)
+    
+    def test03_cookie_with_data(self):
+        secret = os.urandom(32)
         
+        cookie = SecureCookie(secret, 'pjk', '127.0.0.1',
+                              tokens=('token1', 'token2'),
+                              user_data='user_data')
+        cookie_val = cookie.cookie_value()
+        
+        _, _, tokens, user_data = SecureCookie.parse_ticket(secret, cookie_val,
+                                                            None, None)
+        
+        self.assertEqual(['token1', 'token2'], tokens,
+                         'Failed to match tokens')
+        self.assertEqual('user_data', user_data,
+                         'Failed to match user_data')
+        
+        log.info('Cookie value: %r', cookie_val)
+    
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     unittest.main()

@@ -31,9 +31,27 @@ class Encryption(object):
         self.algorithm = algorithm
         self.mode = mode
         self.iv_len = iv_len
-        self.padding_char = padding_char
-        self.msg_blk_size = msg_blk_size
         
+        self.padding_char = padding_char
+            
+        self.msg_blk_size = msg_blk_size
+
+    @property
+    def padding_char(self):
+        return self._padding_char
+    
+    @padding_char.setter
+    def padding_char(self, padding_char):
+        if isinstance(padding_char, str):
+            self._padding_char = padding_char.encode('utf-8')
+            
+        elif isinstance(padding_char, bytes):
+            self._padding_char = padding_char
+            
+        else:
+            raise TypeError('Expecting bytes or str type for "padding_char" '
+                            'got {!r}'.format(type(padding_char)))
+                        
     def encrypt(self, msg, key):
         """Encrypt the input message with the given key.  Strings should be 
         8-bit and are cast this way by default.  Unicode is not supported.
@@ -75,4 +93,4 @@ class Encryption(object):
         decrypted_msg = padded_decrypted_msg.rstrip(self.padding_char)
         
         
-        return decrypted_msg
+        return decrypted_msg.decode()
